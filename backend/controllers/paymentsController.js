@@ -15,7 +15,7 @@ const getAllPaymentsBy = async (req, res) => {
         const payments = await PaymentModel.find({
             [By] : id
         })
-       res.json({success:true ,data:payments})
+        res.json({success:true ,data:payments})
     } catch (error) {
         res.json({ success: false, message: error.message })
     }

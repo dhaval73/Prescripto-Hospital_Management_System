@@ -430,6 +430,24 @@ const verifyStripe = async (req, res) => {
     }
 };
 
+const getAllUser = async (req , res) =>{
+    try {
+        
+        const users = await userModel.find({
+            role : 'user'
+        });
+        res.status(200).json({
+            success:true,
+            data : users,
+            message: "Users retrieved successfully"
+        })
+    } catch (error) {
+        res.status(500).json(
+            { success: false, message: error.message }
+        )
+    }
+}
+
 
 export {
     loginUser,
@@ -442,5 +460,6 @@ export {
     paymentRazorpay,
     verifyRazorpay,
     paymentStripe,
-    verifyStripe
+    verifyStripe,
+    getAllUser
 }
