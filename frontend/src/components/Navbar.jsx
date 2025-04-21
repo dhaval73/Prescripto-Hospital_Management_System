@@ -17,7 +17,8 @@ const Navbar = () => {
   }
 
   return (
-    <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]'>
+<div className='fixed top-0 left-0 w-full z-50 bg-white border-b border-b-[#ADADAD]'>
+<div className='flex items-center justify-between text-sm py-4 px-6'>  
       <img onClick={() => navigate('/')} className='w-44 cursor-pointer' src={assets.logo} alt="" />
       <ul className='md:flex items-start gap-5 font-medium hidden'>
         <NavLink to='/' >
@@ -43,6 +44,7 @@ const Navbar = () => {
           token && userData
             ? <div className='flex items-center gap-2 cursor-pointer group relative'>
               <img className='w-8 rounded-full' src={userData.image} alt="" />
+              <p className="font-medium text-sm">{userData.name}</p>
               <img className='w-2.5' src={assets.dropdown_icon} alt="" />
               <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
                 <div className='min-w-48 bg-gray-50 rounded flex flex-col gap-4 p-4'>
@@ -70,6 +72,7 @@ const Navbar = () => {
           </ul>
         </div>
       </div>
+    </div>
     </div>
   )
 }
