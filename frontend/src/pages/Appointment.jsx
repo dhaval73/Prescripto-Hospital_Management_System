@@ -131,7 +131,7 @@ const Appointment = () => {
     }, [docInfo])
 
     return docInfo ? (
-        <div>
+        <div className='mt-32'>
 
             {/* ---------- Doctor Details ----------- */}
             <div className='flex flex-col sm:flex-row gap-4'>

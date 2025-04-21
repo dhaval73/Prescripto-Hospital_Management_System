@@ -14,6 +14,8 @@ const AdminContextProvider = (props) => {
     const [appointments, setAppointments] = useState([])
     const [doctors, setDoctors] = useState([])
     const [dashData, setDashData] = useState(false)
+    const [patients, setPatients] = useState([]);
+    const [payments, setPayments] = useState([]);
 
     // Getting all Doctors data from Database using API
     const getAllDoctors = async () => {
@@ -71,6 +73,24 @@ const AdminContextProvider = (props) => {
 
     }
 
+    // Function to get all patients
+  const getAllPatients = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + '/api/admin/all-patients', {
+        headers: { aToken },
+      });
+  
+      if (data.success) {
+        setPatients(data.patients); // Make sure your backend sends `patients` array
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
     // Function to cancel appointment using API
     const cancelAppointment = async (appointmentId) => {
 
@@ -110,6 +130,23 @@ const AdminContextProvider = (props) => {
         }
 
     }
+    // Get All Payments
+const getAllPayments = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/payments/get-all`, {
+        headers: { aToken },
+      });
+  
+      if (data.success) {
+        setPayments(data.data.reverse());
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
+    }
+  };
 
     const value = {
         aToken, setAToken,
@@ -120,7 +157,10 @@ const AdminContextProvider = (props) => {
         getAllAppointments,
         getDashData,
         cancelAppointment,
-        dashData
+        dashData,
+        patients,
+        getAllPatients ,
+        payments, getAllPayments,
     }
 
     return (
