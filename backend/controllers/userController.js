@@ -337,6 +337,10 @@ const paymentStripe = async (req, res) => {
             return res.json({ success: false, message: 'Appointment Cancelled or not found' });
         }
 
+        if ( appointmentData.payment == true){
+            return res.json({ success: false, message: 'Payment already completed' });
+        }
+
         if (!paymentMethod) {
             return res.json({ success: false, message: "Payment method is required" });
         }
@@ -351,16 +355,8 @@ const paymentStripe = async (req, res) => {
             quantity: 1
         }];
 
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            success_url: `${origin}/verify?success=true&appointmentId=${appointmentData._id}`,
-            cancel_url: `${origin}/verify?success=false&appointmentId=${appointmentData._id}`,
-            line_items,
-            mode: 'payment',
-        });
-
-        // Save payment record in Payment collection
-        const payment = new PaymentModel({
+           // Save payment record in Payment collection
+           const payment = new PaymentModel({
             userId: appointmentData.userId,
             appointmentId: appointmentData._id,
             amount: appointmentData.amount,
@@ -369,6 +365,16 @@ const paymentStripe = async (req, res) => {
             transactionId: session.id, // Store Stripe session ID as a placeholder
             status: "pending",
         });
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            success_url: `${origin}/verify?success=true&appointmentId=${appointmentData._id}&transectionId=${payment._id}`,
+            cancel_url: `${origin}/verify?success=false&appointmentId=${appointmentData._id}&transectionId=${payment._id}`,
+            line_items,
+            mode: 'payment',
+        });
+
+     
 
         await payment.save(); // Save payment record to DB
 
