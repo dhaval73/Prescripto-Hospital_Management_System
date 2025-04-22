@@ -74,22 +74,26 @@ const AdminContextProvider = (props) => {
     }
 
     // Function to get all patients
-  const getAllPatients = async () => {
-    try {
-      const { data } = await axios.get(backendUrl + '/api/admin/all-patients', {
-        headers: { aToken },
-      });
-  
-      if (data.success) {
-        setPatients(data.patients); // Make sure your backend sends `patients` array
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
+    const getAllPatients = async () => {
+        try {
+          const res = await axios.get(backendUrl + '/api/user/patients', {
+            headers: { aToken },
+          });
+      
+          const result = res.data;
+      
+          if (result.success) {
+            console.log("Setting patients:", result.data);
+            setPatients(result.data); // ✅ correct key
+          } else {
+            toast.error(result.message);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.message);
+        }
+      };
+      
 
     // Function to cancel appointment using API
     const cancelAppointment = async (appointmentId) => {
