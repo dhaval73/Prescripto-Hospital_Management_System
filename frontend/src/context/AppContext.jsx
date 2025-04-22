@@ -76,7 +76,7 @@ const loadUserPayments = async (userId) => {
         backendUrl,
         token, setToken,
         userData, setUserData, loadUserProfileData,
-        payments, loadUserPayments  // Add payments and the function to fetch it
+        payments, loadUserPayments  
     }
 
     return (

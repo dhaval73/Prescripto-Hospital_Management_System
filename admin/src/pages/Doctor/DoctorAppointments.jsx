@@ -1,24 +1,40 @@
-import React from 'react'
-import { useContext, useEffect } from 'react'
-import { DoctorContext } from '../../context/DoctorContext'
-import { AppContext } from '../../context/AppContext'
-import { assets } from '../../assets/assets'
+import React, { useState, useEffect, useContext } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/assets';
 
 const DoctorAppointments = () => {
+  const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext);
+  const { slotDateFormat, calculateAge, currency } = useContext(AppContext);
 
-  const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
-  const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (dToken) {
-      getAppointments()
+      getAppointments();
     }
-  }, [dToken])
+  }, [dToken]);
+
+  const filteredAppointments = appointments.filter((item) =>
+    item.userData.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.payment ? 'Online' : 'CASH').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.cancelled ? 'Cancelled' : item.isCompleted ? 'Completed' : '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className='w-full max-w-6xl m-5 '>
-
       <p className='mb-3 text-lg font-medium'>All Appointments</p>
+
+      {/* Search Input */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search appointments by name, payment, or status"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full border px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+      </div>
 
       <div className='bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll'>
         <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
@@ -30,15 +46,15 @@ const DoctorAppointments = () => {
           <p>Fees</p>
           <p>Action</p>
         </div>
-        {appointments.map((item, index) => (
+        {filteredAppointments.map((item, index) => (
           <div className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
-            <p className='max-sm:hidden'>{index}</p>
+            <p className='max-sm:hidden'>{index + 1}</p>
             <div className='flex items-center gap-2'>
               <img src={item.userData.image} className='w-8 rounded-full' alt="" /> <p>{item.userData.name}</p>
             </div>
             <div>
               <p className='text-xs inline border border-primary px-2 rounded-full'>
-                {item.payment?'Online':'CASH'}
+                {item.payment ? 'Online' : 'CASH'}
               </p>
             </div>
             <p className='max-sm:hidden'>{calculateAge(item.userData.dob)}</p>
@@ -56,9 +72,8 @@ const DoctorAppointments = () => {
           </div>
         ))}
       </div>
-
     </div>
-  )
+  );
 }
 
-export default DoctorAppointments
+export default DoctorAppointments;

@@ -34,17 +34,26 @@ const MyAppointments = () => {
     }
 
     const fetchPaymentDetails = async (appointmentId) => {
+        // Toggle logic: if details already showing, hide them
+        if (showDetailsFor === appointmentId) {
+            setShowDetailsFor(null)
+            return
+        }
+    
         try {
             const { data } = await axios.get(`${backendUrl}/api/payments/appointmentId/${appointmentId}`, {
                 headers: { token }
             })
-            setPaymentDetails(data.data) // Adjust based on actual API response
+            setPaymentDetails(data.data[0])
             setShowDetailsFor(appointmentId)
         } catch (error) {
             console.log(error)
             toast.error("Failed to fetch payment details")
         }
     }
+    
+
+        
     
     const cancelAppointment = async (appointmentId) => {
         try {
@@ -186,13 +195,14 @@ const MyAppointments = () => {
                                 <span className="py-2 px-4 rounded border border-red-500 text-red-500 text-center">Appointment Cancelled</span>
                             )}
                             {item.payment && (
-                                <button
-                                    onClick={() => fetchPaymentDetails(item._id)}
-                                    className="border border-indigo-500 text-indigo-500 py-2 px-4 rounded hover:bg-indigo-500 hover:text-white transition"
-                                >
-                                    Payment Details
-                                </button>
-                            )}
+    <button
+        onClick={() => fetchPaymentDetails(item._id)}
+        className="border border-indigo-500 text-indigo-500 py-2 px-4 rounded hover:bg-indigo-500 hover:text-white transition"
+    >
+        {showDetailsFor === item._id ? "Hide Payment Details" : "Show Payment Details"}
+    </button>
+)}
+
                           {showDetailsFor === item._id && paymentDetails && (
     <div className="bg-gray-50 border rounded-lg p-4 text-sm mt-2 space-y-1">
         <p><strong>Payment ID:</strong> {paymentDetails._id}</p>

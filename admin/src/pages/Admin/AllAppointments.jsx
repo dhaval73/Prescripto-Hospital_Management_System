@@ -1,24 +1,49 @@
-import React, { useEffect } from 'react'
-import { assets } from '../../assets/assets'
-import { useContext } from 'react'
-import { AdminContext } from '../../context/AdminContext'
-import { AppContext } from '../../context/AppContext'
+import React, { useEffect, useState, useContext } from 'react';
+import { assets } from '../../assets/assets';
+import { AdminContext } from '../../context/AdminContext';
+import { AppContext } from '../../context/AppContext';
 
 const AllAppointments = () => {
+  const { aToken, appointments, cancelAppointment, getAllAppointments } = useContext(AdminContext);
+  const { slotDateFormat, calculateAge, currency } = useContext(AppContext);
 
-  const { aToken, appointments, cancelAppointment, getAllAppointments } = useContext(AdminContext)
-  const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (aToken) {
-      getAllAppointments()
+      getAllAppointments();
     }
-  }, [aToken])
+  }, [aToken]);
+
+  const filteredAppointments = appointments.filter((item) => {
+    const patientName = item.userData.name?.toLowerCase() || '';
+    const doctorName = item.docData.name?.toLowerCase() || '';
+    const age = calculateAge(item.userData.dob).toString();
+    const date = slotDateFormat(item.slotDate)?.toLowerCase() || '';
+    const time = item.slotTime?.toLowerCase() || '';
+    const status = item.cancelled ? 'cancelled' : item.isCompleted ? 'completed' : 'active';
+
+    return (
+      patientName.includes(searchQuery.toLowerCase()) ||
+      doctorName.includes(searchQuery.toLowerCase()) ||
+      age.includes(searchQuery) ||
+      date.includes(searchQuery.toLowerCase()) ||
+      time.includes(searchQuery.toLowerCase()) ||
+      status.includes(searchQuery.toLowerCase())
+    );
+  });
 
   return (
-    <div className='w-full max-w-6xl m-5 '>
-
+    <div className='w-full max-w-6xl m-5'>
       <p className='mb-3 text-lg font-medium'>All Appointments</p>
+
+      <input
+        type="text"
+        placeholder="Search by patient, doctor, date, time, age or status"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="mb-4 w-full border px-4 py-2 rounded shadow-sm text-sm"
+      />
 
       <div className='bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll'>
         <div className='hidden bg-[#F5F8FF] sm:grid grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] grid-flow-col py-3 px-6 border-b'>
@@ -30,25 +55,40 @@ const AllAppointments = () => {
           <p>Fees</p>
           <p>Action</p>
         </div>
-        {appointments.map((item, index) => (
-          <div className='flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
-            <p className='max-sm:hidden'>{index+1}</p>
+
+        {filteredAppointments.map((item, index) => (
+          <div
+            className='flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50'
+            key={index}
+          >
+            <p className='max-sm:hidden'>{index + 1}</p>
             <div className='flex items-center gap-2'>
-              <img src={item.userData.image} className='w-8 rounded-full' alt="" /> <p>{item.userData.name}</p>
+              <img src={item.userData.image} className='w-8 rounded-full' alt="" />
+              <p>{item.userData.name}</p>
             </div>
             <p className='max-sm:hidden'>{calculateAge(item.userData.dob)}</p>
             <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
             <div className='flex items-center gap-2'>
-              <img src={item.docData.image} className='w-8 rounded-full bg-gray-200' alt="" /> <p>{item.docData.name}</p>
+              <img src={item.docData.image} className='w-8 rounded-full bg-gray-200' alt="" />
+              <p>{item.docData.name}</p>
             </div>
             <p>{currency}{item.amount}</p>
-            {item.cancelled ? <p className='text-red-400 text-xs font-medium'>Cancelled</p> : item.isCompleted ? <p className='text-green-500 text-xs font-medium'>Completed</p> : <img onClick={() => cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />}
+            {item.cancelled ? (
+              <p className='text-red-400 text-xs font-medium'>Cancelled</p>
+            ) : item.isCompleted ? (
+              <p className='text-green-500 text-xs font-medium'>Completed</p>
+            ) : (
+              <img onClick={() => cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />
+            )}
           </div>
         ))}
+
+        {filteredAppointments.length === 0 && (
+          <div className="p-4 text-center text-gray-500">No appointments found.</div>
+        )}
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default AllAppointments
+export default AllAppointments;
